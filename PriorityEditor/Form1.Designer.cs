@@ -53,21 +53,22 @@ namespace PriorityEditor
                 this.Icon = new Icon("31.ico",128,128);
             
             this.Text = "Priority editor";
+            this.update.Click += new EventHandler(tablePanel);
+            this.Controls.Add(this.update);
             
-            this.Controls.Add(update);
-            update.Click += new EventHandler(tablePanel);
             tablePanel();
         }
         private void tablePanel()
         {
             ListBox listBox1 = new ListBox();
             listBox1.MultiColumn = true;
+            listBox1.ColumnWidth = 150;
             // Set the size and location of the ListBox.
-            ProcessThreadCollection currentThreads = Process.GetCurrentProcess().Threads;
-            foreach (ProcessThread thread in currentThreads)
+            var currentThreads = Process.GetProcesses();
+            foreach (var thread in currentThreads)
             {
 
-                listBox1.Items.Add(currentThreads.IndexOf(thread));
+                listBox1.Items.Add(thread.ProcessName);
             }
             listBox1.Size = new System.Drawing.Size(500, 300);
             listBox1.Location = new System.Drawing.Point(30,10);
