@@ -1,7 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,6 +12,8 @@ namespace PriorityEditor
 {
     partial class Form1
     {
+        DataGridView dataGridView = new DataGridView();
+        private int sortDirection = 1;
         /// <summary>
         ///  Required designer variable.
         /// </summary>
@@ -37,6 +41,7 @@ namespace PriorityEditor
             Location = new Point(30, 315)
         };
         
+        
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -53,36 +58,63 @@ namespace PriorityEditor
                 this.Icon = new Icon("31.ico",128,128);
             
             this.Text = "Priority editor";
-            this.update.Click += new EventHandler(tablePanel);
-            this.Controls.Add(this.update);
             
+            update.Click += new EventHandler(refresh);
             tablePanel();
         }
-        private void tablePanel()
-        {
-            ListBox listBox1 = new ListBox();
-            listBox1.MultiColumn = true;
-            listBox1.ColumnWidth = 150;
-            // Set the size and location of the ListBox.
-            var currentThreads = Process.GetProcesses();
-            foreach (var thread in currentThreads)
-            {
 
-                listBox1.Items.Add(thread.ProcessName);
+        private void refresh(Object obj, EventArgs e)
+        {
+            refresh(dataGridView.SortedColumn);
+        }
+
+        private void refresh(DataGridViewColumn column)
+        {
+            this.dataGridView.Rows.Clear();
+            foreach (var process in Process.GetProcesses())
+            {
+                this.dataGridView.Rows.Add(new Object[]
+                {   process.ProcessName, 
+                    Math.Round(process.PagedMemorySize64 / Math.Pow(2, 20), 1),
+                    process.Id });
             }
-            listBox1.Size = new System.Drawing.Size(500, 300);
-            listBox1.Location = new System.Drawing.Point(30,10);
-            this.Controls.Add(listBox1);        
-            
+            this.dataGridView.Sort(column, (ListSortDirection)(dataGridView.SortedColumn.HeaderCell.SortGlyphDirection-1));
+            // this.Controls.Add(dataGridView);
             /*Task.Run(async delegate
             {
                 await Task.Delay(1500);
-                tablePanel();
+                refresh(dataGridView.SortedColumn);
             });*/
         }
-        private void tablePanel(Object sender, EventArgs e)
+        private void tablePanel()
         {
-            tablePanel();
+            this.Controls.Add(dataGridView);
+            this.Controls.Add(update);
+            dataGridView.ReadOnly = true;
+            dataGridView.ColumnCount = 3;
+            dataGridView.Columns[0].Name = "Process";
+            dataGridView.Columns[1].Name = "Memory usage (MB)";
+            dataGridView.Columns[1].MinimumWidth = 125;
+            dataGridView.Columns[2].Name = "Id";
+
+            dataGridView.Size = new System.Drawing.Size(400, 300);
+            dataGridView.Location = new System.Drawing.Point(30,10);
+            // Set the size and location of the ListBox.
+
+            foreach (var process in Process.GetProcesses())
+            {
+                dataGridView.Rows.Add(new Object[]
+                    {   process.ProcessName, 
+                        Math.Round(process.PagedMemorySize64 / Math.Pow(2, 20), 1),
+                        process.Id });
+            }
+            dataGridView.Sort(dataGridView.Columns[1], (ListSortDirection)sortDirection );
+            //this.Controls.Add(dataGridView);
+            /*Task.Run(async delegate
+                {
+                    await Task.Delay(1500);
+                    refresh(dataGridView.SortedColumn);
+                });*/
         }
         #endregion
     }
