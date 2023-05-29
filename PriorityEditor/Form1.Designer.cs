@@ -65,25 +65,27 @@ namespace PriorityEditor
 
         private void refresh(Object obj, EventArgs e)
         {
-            refresh(dataGridView.SortedColumn);
+            Thread temporaryThread = new Thread(() => refresh(this.dataGridView));
+            temporaryThread.Priority = ThreadPriority.AboveNormal;
+            temporaryThread.Start();
         }
 
-        private void refresh(DataGridViewColumn column)
+        private void refresh(DataGridView temp)
         {
-            this.dataGridView.Rows.Clear();
+            temp.Rows.Clear();
             foreach (var process in Process.GetProcesses())
             {
-                this.dataGridView.Rows.Add(new Object[]
+                temp.Rows.Add(new Object[]
                 {   process.ProcessName, 
                     Math.Round(process.PagedMemorySize64 / Math.Pow(2, 20), 1),
                     process.Id });
             }
-            this.dataGridView.Sort(column, (ListSortDirection)(dataGridView.SortedColumn.HeaderCell.SortGlyphDirection-1));
-            // this.Controls.Add(dataGridView);
+            temp.Sort(this.dataGridView.SortedColumn, (ListSortDirection)(dataGridView.SortedColumn.HeaderCell.SortGlyphDirection-1));
+            this.dataGridView = temp;
             /*Task.Run(async delegate
             {
-                await Task.Delay(1500);
-                refresh(dataGridView.SortedColumn);
+                await Task.Delay(2500);
+                refresh(this.dataGridView);
             });*/
         }
         private void tablePanel()
@@ -99,7 +101,7 @@ namespace PriorityEditor
 
             dataGridView.Size = new System.Drawing.Size(400, 300);
             dataGridView.Location = new System.Drawing.Point(30,10);
-            // Set the size and location of the ListBox.
+            
 
             foreach (var process in Process.GetProcesses())
             {
@@ -109,12 +111,11 @@ namespace PriorityEditor
                         process.Id });
             }
             dataGridView.Sort(dataGridView.Columns[1], (ListSortDirection)sortDirection );
-            //this.Controls.Add(dataGridView);
-            /*Task.Run(async delegate
+            Task.Run(async delegate
                 {
-                    await Task.Delay(1500);
-                    refresh(dataGridView.SortedColumn);
-                });*/
+                    await Task.Delay(2500);
+                    refresh(dataGridView);
+                });
         }
         #endregion
     }
