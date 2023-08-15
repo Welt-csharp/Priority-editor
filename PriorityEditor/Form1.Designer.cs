@@ -70,8 +70,9 @@ namespace PriorityEditor
             temporaryThread.Start();
         }
 
-        private void refresh(DataGridView temp)
+        private void refresh(DataGridView old)
         {
+            DataGridView temp = old;
             temp.Rows.Clear();
             foreach (var process in Process.GetProcesses())
             {
@@ -111,11 +112,11 @@ namespace PriorityEditor
                         process.Id });
             }
             dataGridView.Sort(dataGridView.Columns[1], (ListSortDirection)sortDirection );
-            Task.Run(async delegate
+            /*Task.Run(async delegate
                 {
                     await Task.Delay(2500);
                     refresh(dataGridView);
-                });
+                });*/
         }
         #endregion
     }

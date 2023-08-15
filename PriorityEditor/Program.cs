@@ -27,8 +27,8 @@ namespace PriorityEditor
         }
         private static void cautionMessage()
         {
-            MessageBox.Show("Editing thread priority may cause instability of your system.\n" +
-                            "Instead of increasing priority, try decrease.\n" +
+            MessageBox.Show("Editing threads priority may cause instability of your system.\n" +
+                            "Instead of increasing priority, try to decrease.\n" +
                             "You have been warned.","Caution");
         }
     }
